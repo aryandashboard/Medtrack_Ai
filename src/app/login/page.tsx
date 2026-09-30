@@ -13,16 +13,35 @@ export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
     
-    // TODO: Connect to Supabase Auth
-    // Mock login delay for demo purposes
-    setTimeout(() => {
+    const formData = new FormData(e.currentTarget)
+    const email = formData.get('email')
+    const password = formData.get('password')
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/v1/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+      
+      const data = await res.json()
+      
+      if (res.ok) {
+        // Store token in localStorage (or rely on HTTP-only cookie if setup correctly)
+        localStorage.setItem('token', data.token)
+        router.push('/dashboard')
+      } else {
+        alert(data.error || 'Login failed')
+      }
+    } catch (err) {
+      alert('Network error')
+    } finally {
       setIsLoading(false)
-      router.push('/dashboard')
-    }, 1000)
+    }
   }
 
   return (

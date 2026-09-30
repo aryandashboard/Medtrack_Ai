@@ -23,6 +23,8 @@ const MedicationSchema = new mongoose.Schema({
   strength: { type: String }, // e.g., "500 mg"
   dosage: { type: String }, // e.g., "1 capsule"
   frequency: { type: String }, // e.g., "3 times daily"
+  times: [{ type: String }], // Array of times e.g., ["08:00", "14:00", "20:00"]
+  timezone: { type: String, default: 'UTC' }, // For accurate notifications
   instructions: { type: String }, // e.g., "after food"
   start_date: { type: Date, default: Date.now },
   end_date: { type: Date },
@@ -30,16 +32,7 @@ const MedicationSchema = new mongoose.Schema({
 });
 ```
 
-## 3. Dose Schedule Schema
-
-```javascript
-const DoseScheduleSchema = new mongoose.Schema({
-  medication_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Medication', required: true },
-  scheduled_time: { type: String, required: true } // format: "HH:mm" e.g. "08:00"
-});
-```
-
-## 4. Dose Log Schema
+## 3. Dose Log Schema
 
 ```javascript
 const DoseLogSchema = new mongoose.Schema({
@@ -52,7 +45,7 @@ const DoseLogSchema = new mongoose.Schema({
 });
 ```
 
-## 5. Caregiver Relationship Schema
+## 4. Caregiver Relationship Schema
 
 ```javascript
 const CaregiverRelationshipSchema = new mongoose.Schema({
@@ -64,7 +57,7 @@ const CaregiverRelationshipSchema = new mongoose.Schema({
 });
 ```
 
-## 6. Prescription (AI Extraction) Schema
+## 5. Prescription (AI Extraction) Schema
 
 ```javascript
 const PrescriptionSchema = new mongoose.Schema({

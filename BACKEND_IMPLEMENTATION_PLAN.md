@@ -21,11 +21,10 @@ This document outlines the exact, step-by-step order for building the new Expres
 
 1. Create a `models/` directory.
 2. Implement `User.js` (Patient/Caregiver).
-3. Implement `Medication.js`.
-4. Implement `DoseSchedule.js`.
-5. Implement `DoseLog.js`.
-6. Implement `CaregiverRelationship.js`.
-7. Implement `Prescription.js`.
+3. Implement `Medication.js` (includes schedule fields).
+4. Implement `DoseLog.js`.
+5. Implement `CaregiverRelationship.js`.
+6. Implement `Prescription.js`.
 
 ---
 

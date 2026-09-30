@@ -32,19 +32,12 @@ Stores the core details of a medication prescribed to a patient.
 * **Important Fields**:
   * `patient_id` (ObjectId, Ref: `users`)
   * `name`, `strength`, `dosage`, `frequency` (Strings)
+  * `times` (Array of Strings, e.g., ["08:00", "14:00"])
+  * `timezone` (String)
   * `start_date`, `end_date` (Dates)
 * **Indexes**: `{ patient_id: 1 }`
 
-### 3. `dose_schedules`
-
-Defines the recurring times a medication should be taken.
-
-* **Important Fields**:
-  * `medication_id` (ObjectId, Ref: `medications`)
-  * `scheduled_time` (String, e.g., "08:00")
-* **Indexes**: `{ medication_id: 1 }`
-
-### 4. `dose_logs`
+### 3. `dose_logs`
 
 Tracks individual medication events (taken, missed, skipped).
 
@@ -56,7 +49,7 @@ Tracks individual medication events (taken, missed, skipped).
   * `taken_at` (Date, optional)
 * **Indexes**: `{ patient_id: 1, scheduled_at: -1 }` (Optimizes timeline fetching)
 
-### 5. `caregiver_relationships`
+### 4. `caregiver_relationships`
 
 Maps patients to authorized caregivers.
 
@@ -67,7 +60,7 @@ Maps patients to authorized caregivers.
   * `invite_code` (String, unique)
 * **Indexes**: `{ patient_id: 1, caregiver_id: 1 }` (Unique compound index)
 
-### 6. `prescriptions`
+### 5. `prescriptions`
 
 Stores uploaded prescriptions and the intermediate AI-extracted data.
 
