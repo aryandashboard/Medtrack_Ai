@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Pill, LayoutDashboard, History, Settings, FileText, Users } from 'lucide-react'
+import { LogoutButton } from '@/components/LogoutButton'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -33,6 +34,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             Settings
           </Link>
         </nav>
+        <div className="p-4 border-t shrink-0">
+          <LogoutButton />
+        </div>
       </aside>
       <main className="flex-1 flex flex-col min-h-0 bg-background/50">
         {children}

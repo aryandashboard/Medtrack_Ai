@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
+import { api } from '@/lib/api'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -18,27 +19,14 @@ export default function LoginPage() {
     setIsLoading(true)
     
     const formData = new FormData(e.currentTarget)
-    const email = formData.get('email')
-    const password = formData.get('password')
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/v1/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      })
-      
-      const data = await res.json()
-      
-      if (res.ok) {
-        // Store token in localStorage (or rely on HTTP-only cookie if setup correctly)
-        localStorage.setItem('token', data.token)
-        router.push('/dashboard')
-      } else {
-        alert(data.error || 'Login failed')
-      }
-    } catch (err) {
-      alert('Network error')
+      await api.auth.login({ email, password })
+      router.push('/dashboard')
+    } catch (err: any) {
+      alert(err.message || 'Login failed')
     } finally {
       setIsLoading(false)
     }

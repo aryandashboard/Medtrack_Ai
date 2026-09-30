@@ -63,9 +63,10 @@ This document records the migration from the original Supabase/PostgreSQL MVP ar
 * Hard authorization checks preventing users from reading unauthorized patient data.
 
 ### J. Frontend integration
-* Partially implemented: The `login/page.tsx` was wired to the new Express API.
-* The frontend previously had mocked UI (like Dashboard) and a server action for Gemini. The server action can now be bypassed by hitting the `/api/v1/prescriptions/scan` endpoint.
-* Further wiring is needed to completely replace all Supabase logic.
+* **Completed Phase 8**: All frontend pages (Login, Signup, Dashboard, Scanner, Caregiver, Verify) are completely wired to the Express API.
+* Established `src/lib/api.ts` as the central utility for REST requests with `credentials: 'include'` for cookies.
+* Replaced all Supabase server actions with direct API calls.
+* Removed obsolete Supabase auth and routing middleware.
 
 ### K. Files created
 * `ARCHITECTURE.md`
@@ -80,25 +81,38 @@ This document records the migration from the original Supabase/PostgreSQL MVP ar
 * `backend/index.js`
 * `backend/.env`
 * `backend/package.json`
-* `backend/models/*.js` (User, Medication, DoseLog, CaregiverRelationship, Prescription)
-* `backend/controllers/*.js` (auth, caregiver, medication, prescription)
+* `backend/models/*.js`
+* `backend/controllers/*.js`
 * `backend/routes/*.js`
 * `backend/middleware/authMiddleware.js`
 * `backend/services/aiService.js`
 * `MIGRATION_NOTES.md`
+* `src/lib/api.ts`
+* `src/components/LogoutButton.tsx`
+* `src/app/dashboard/settings/page.tsx`
 
 ### L. Files modified
-* `src/app/login/page.tsx` (wired to Express API)
-* `package.json` (backend specific, via new dir)
+* `src/app/login/page.tsx`
+* `src/app/signup/page.tsx`
+* `src/app/dashboard/page.tsx`
+* `src/app/dashboard/layout.tsx`
+* `src/app/dashboard/caregiver/page.tsx`
+* `src/app/dashboard/scanner/page.tsx`
+* `src/app/dashboard/scanner/verify/page.tsx`
+* `package.json` (frontend)
+* `.env.local` (frontend)
 
 ### M. Files deleted
-* None yet (Old Supabase libraries remain until fully verified).
+* `src/proxy.ts`
+* `src/lib/supabase` (Entire folder)
+* `supabase/` (Entire folder)
+* `src/app/actions/parse-prescription.ts`
 
 ### N. Dependencies added
 * Express Backend: `express`, `mongoose`, `dotenv`, `cors`, `jsonwebtoken`, `bcryptjs`, `multer`, `cookie-parser`, `@google/generative-ai`, `nodemon`.
 
 ### O. Dependencies removed
-* None yet (Supabase frontend packages remain until Phase 8 is completed).
+* Frontend: `@supabase/supabase-js`, `@supabase/ssr` (Removed successfully during Phase 8).
 
 ### P. Environment variables required
 * `MONGO_URI`

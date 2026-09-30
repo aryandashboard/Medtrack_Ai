@@ -9,21 +9,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
+import { api } from '@/lib/api'
 
 export default function SignupPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleSignup = (e: React.FormEvent) => {
+  const [role, setRole] = useState('patient')
+
+  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
     
-    // TODO: Connect to Supabase Auth Signup
-    // Mock signup delay for demo purposes
-    setTimeout(() => {
-      setIsLoading(false)
+    const formData = new FormData(e.currentTarget)
+    const name = formData.get('name') as string
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+
+    try {
+      await api.auth.register({ name, email, password, role })
       router.push('/dashboard')
-    }, 1000)
+    } catch (err: any) {
+      alert(err.message || 'Signup failed')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -39,19 +49,19 @@ export default function SignupPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" placeholder="John Doe" required />
+              <Input id="name" name="name" placeholder="John Doe" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="m@example.com" required />
+              <Input id="email" name="email" type="email" placeholder="m@example.com" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" required />
+              <Input id="password" name="password" type="password" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="role">I am joining as a...</Label>
-              <Select required defaultValue="patient">
+              <Select required value={role} onValueChange={(val) => setRole(val || 'patient')}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>

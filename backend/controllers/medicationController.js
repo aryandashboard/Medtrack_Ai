@@ -129,3 +129,44 @@ exports.updateDoseStatus = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.updateMedication = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    const medication = await Medication.findOneAndUpdate(
+      { _id: id, patient_id: req.user.id },
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!medication) {
+      return res.status(404).json({ error: 'Medication not found or unauthorized' });
+    }
+
+    res.json({ medication });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deactivateMedication = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    
+    const medication = await Medication.findOneAndUpdate(
+      { _id: id, patient_id: req.user.id },
+      { active: false },
+      { new: true }
+    );
+
+    if (!medication) {
+      return res.status(404).json({ error: 'Medication not found or unauthorized' });
+    }
+
+    res.json({ message: 'Medication deactivated successfully', medication });
+  } catch (err) {
+    next(err);
+  }
+};

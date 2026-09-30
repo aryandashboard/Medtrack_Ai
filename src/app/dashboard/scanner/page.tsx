@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Upload, Camera, FileText, Loader2, X, PenLine, AlertCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { parsePrescriptionImage } from '@/app/actions/parse-prescription'
+import { api } from '@/lib/api'
 
 export default function ScannerPage() {
   const router = useRouter()
@@ -89,41 +89,48 @@ export default function ScannerPage() {
     setErrorMsg('')
     
     try {
-      // Convert file to base64
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.onload = async () => {
-        const base64String = (reader.result as string).split(',')[1] // Remove the data:image/jpeg;base64, part
-        
-        // Call the server action
-        const result = await parsePrescriptionImage(base64String, file.type)
-        
-        if (result.success && result.data) {
-          // Store result in sessionStorage to pass to verify page
-          sessionStorage.setItem('medtrack_extraction', JSON.stringify(result.data.medications || []))
-          router.push('/dashboard/scanner/verify')
-        } else {
-          setErrorMsg(result.error || 'Failed to extract data from image.')
-          setIsScanning(false)
-        }
+      const formData = new FormData()
+      formData.append('prescription', file)
+
+      const result = await api.prescriptions.scan(formData)
+      
+      if (result && result.ai_extracted_data) {
+        // Pass to verify page. We'll store the prescriptionId too.
+        sessionStorage.setItem('medtrack_extraction', JSON.stringify(result.ai_extracted_data.medications || []))
+        sessionStorage.setItem('medtrack_prescription_id', result.prescriptionId)
+        router.push('/dashboard/scanner/verify')
+      } else {
+        setErrorMsg('Failed to extract data from image.')
       }
-      reader.onerror = () => {
-        setErrorMsg('Failed to read the file.')
-        setIsScanning(false)
-      }
-    } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'An unexpected error occurred.')
+    } catch (err: any) {
+      setErrorMsg(err.message || 'An unexpected error occurred.')
+    } finally {
       setIsScanning(false)
     }
   }
 
-  const handleManualSave = (e: React.FormEvent) => {
+  const handleManualSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsSavingManual(true)
-    setTimeout(() => {
-      setIsSavingManual(false)
+    
+    const formData = new FormData(e.currentTarget)
+    const data = {
+      name: formData.get('name'),
+      strength: formData.get('dosage'),
+      dosage: formData.get('dosage'),
+      frequency: formData.get('frequency'),
+      times: [formData.get('time')], // Simple mapping for MVP
+      instructions: formData.get('instructions')
+    }
+
+    try {
+      await api.medications.create(data)
       router.push('/dashboard')
-    }, 1000)
+    } catch (err: any) {
+      alert(err.message || 'Failed to create medication')
+    } finally {
+      setIsSavingManual(false)
+    }
   }
 
   return (

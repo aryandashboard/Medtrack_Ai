@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { useRouter } from 'next/navigation'
 import { AlertCircle, CheckCircle2 } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { api } from '@/lib/api'
 
 type Medication = {
   id?: number | string
@@ -46,14 +47,33 @@ export default function VerifyExtractionPage() {
     }
   }, [])
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     setIsConfirming(true)
-    // Simulate API call to save and create schedules in Supabase
-    setTimeout(() => {
-      setIsConfirming(false)
+    try {
+      const prescriptionId = sessionStorage.getItem('medtrack_prescription_id')
+      if (!prescriptionId) {
+        throw new Error('Prescription ID missing. Please scan again.')
+      }
+
+      // In a real app we'd map frequency to times[] here or via AI
+      const verifiedMedications = medications.map(m => ({
+        ...m,
+        times: ['08:00', '20:00'] // Mocking times since frequency is text
+      }))
+
+      await api.prescriptions.verify(prescriptionId, verifiedMedications)
+      
       sessionStorage.removeItem('medtrack_extraction')
+      sessionStorage.removeItem('medtrack_prescription_id')
       router.push('/dashboard')
-    }, 1500)
+    } catch (err: any) {
+      alert(err.message || 'Failed to verify prescription')
+      setIsConfirming(false)
+    }
+  }
+
+  const updateMedication = (id: string | number | undefined, field: keyof Medication, value: string) => {
+    setMedications(prev => prev.map(m => m.id === id ? { ...m, [field]: value } : m))
   }
 
   return (
@@ -84,27 +104,27 @@ export default function VerifyExtractionPage() {
               <CardContent className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor={`name-${med.id}`}>Medicine Name</Label>
-                  <Input id={`name-${med.id}`} defaultValue={med.name} />
+                  <Input id={`name-${med.id}`} value={med.name} onChange={(e) => updateMedication(med.id, 'name', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor={`strength-${med.id}`}>Strength</Label>
-                  <Input id={`strength-${med.id}`} defaultValue={med.strength} />
+                  <Input id={`strength-${med.id}`} value={med.strength} onChange={(e) => updateMedication(med.id, 'strength', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor={`dosage-${med.id}`}>Dosage</Label>
-                  <Input id={`dosage-${med.id}`} defaultValue={med.dosage} />
+                  <Input id={`dosage-${med.id}`} value={med.dosage} onChange={(e) => updateMedication(med.id, 'dosage', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor={`frequency-${med.id}`}>Frequency</Label>
-                  <Input id={`frequency-${med.id}`} defaultValue={med.frequency} />
+                  <Input id={`frequency-${med.id}`} value={med.frequency} onChange={(e) => updateMedication(med.id, 'frequency', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor={`duration-${med.id}`}>Duration</Label>
-                  <Input id={`duration-${med.id}`} defaultValue={med.duration} />
+                  <Input id={`duration-${med.id}`} value={med.duration} onChange={(e) => updateMedication(med.id, 'duration', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor={`instructions-${med.id}`}>Instructions</Label>
-                  <Input id={`instructions-${med.id}`} defaultValue={med.instructions} />
+                  <Input id={`instructions-${med.id}`} value={med.instructions} onChange={(e) => updateMedication(med.id, 'instructions', e.target.value)} />
                 </div>
               </CardContent>
             </Card>

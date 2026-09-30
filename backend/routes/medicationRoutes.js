@@ -9,5 +9,7 @@ router.post('/', medicationController.createMedication);
 router.get('/', medicationController.getMedications);
 router.get('/dashboard', medicationController.getDashboard);
 router.patch('/doses/:id', medicationController.updateDoseStatus);
+router.patch('/:id', medicationController.updateMedication);
+router.delete('/:id', medicationController.deactivateMedication);
 
 module.exports = router;
