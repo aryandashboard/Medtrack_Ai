@@ -14,12 +14,14 @@ import { api } from '@/lib/api'
 export default function SignupPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
 
   const [role, setRole] = useState('patient')
 
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
+    setErrorMsg('')
     
     const formData = new FormData(e.currentTarget)
     const name = formData.get('name') as string
@@ -30,7 +32,7 @@ export default function SignupPage() {
       await api.auth.register({ name, email, password, role })
       router.push('/dashboard')
     } catch (err: any) {
-      alert(err.message || 'Signup failed')
+      setErrorMsg(err.message || 'Signup failed')
     } finally {
       setIsLoading(false)
     }
@@ -46,6 +48,11 @@ export default function SignupPage() {
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSignup}>
+          {errorMsg && (
+            <div className="mx-6 mb-2 p-3 text-sm bg-red-50 text-red-600 border border-red-200 rounded-md">
+              {errorMsg}
+            </div>
+          )}
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>

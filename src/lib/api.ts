@@ -47,6 +47,7 @@ export const api = {
   },
   medications: {
     getDashboard: () => fetchAPI('/api/v1/medications/dashboard'),
+    getHistory: () => fetchAPI('/api/v1/medications/history'),
     getAll: () => fetchAPI('/api/v1/medications'),
     create: (data: any) => fetchAPI('/api/v1/medications', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: string, data: any) => fetchAPI(`/api/v1/medications/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),

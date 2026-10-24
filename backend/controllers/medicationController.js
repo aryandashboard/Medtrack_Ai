@@ -103,6 +103,18 @@ exports.getDashboard = async (req, res, next) => {
   }
 };
 
+exports.getHistory = async (req, res, next) => {
+  try {
+    const doseLogs = await DoseLog.find({ patient_id: req.user.id })
+      .populate('medication_id')
+      .sort({ scheduled_at: -1 })
+      .limit(100);
+    res.json({ doseLogs });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.updateDoseStatus = async (req, res, next) => {
   try {
     const { id } = req.params;

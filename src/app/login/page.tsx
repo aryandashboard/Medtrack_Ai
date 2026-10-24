@@ -13,10 +13,12 @@ import { api } from '@/lib/api'
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
+    setErrorMsg('')
     
     const formData = new FormData(e.currentTarget)
     const email = formData.get('email') as string
@@ -26,7 +28,7 @@ export default function LoginPage() {
       await api.auth.login({ email, password })
       router.push('/dashboard')
     } catch (err: any) {
-      alert(err.message || 'Login failed')
+      setErrorMsg(err.message || 'Login failed')
     } finally {
       setIsLoading(false)
     }
@@ -42,10 +44,15 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
+          {errorMsg && (
+            <div className="mx-6 p-3 text-sm bg-red-50 text-red-600 border border-red-200 rounded-md">
+              {errorMsg}
+            </div>
+          )}
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="m@example.com" required />
+              <Input id="email" name="email" type="email" placeholder="m@example.com" required />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -54,7 +61,7 @@ export default function LoginPage() {
                   Forgot password?
                 </Link>
               </div>
-              <Input id="password" type="password" required />
+              <Input id="password" name="password" type="password" required />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
