@@ -1,0 +1,16 @@
+@echo off
+echo Starting Medtrack AI...
+
+echo Starting Backend on port 5000...
+start "MedTrack Backend" cmd /k "cd backend && npm run dev"
+
+echo Starting Frontend on port 3000...
+start "MedTrack Frontend" cmd /k "npm run dev"
+
+echo Waiting for servers to start...
+timeout /t 5 /nobreak > nul
+
+echo Opening browser...
+start http://localhost:3000
+
+echo Done! You can close this window.

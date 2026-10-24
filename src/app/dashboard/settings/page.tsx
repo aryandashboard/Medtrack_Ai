@@ -5,8 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import { Loader2, Copy } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export default function SettingsPage() {
+  const router = useRouter()
   const [inviteCode, setInviteCode] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -16,7 +18,11 @@ export default function SettingsPage() {
       const res = await api.caregiver.generateInvite()
       setInviteCode(res.inviteCode)
     } catch (err: any) {
-      alert(err.message || 'Failed to generate invite')
+      if (err.message.includes('token') || err.message.includes('401')) {
+        router.push('/login')
+      } else {
+        alert(err.message || 'Failed to generate invite')
+      }
     } finally {
       setLoading(false)
     }

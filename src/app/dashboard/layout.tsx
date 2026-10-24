@@ -1,8 +1,34 @@
+'use client'
+
 import Link from 'next/link'
-import { Pill, LayoutDashboard, History, Settings, FileText, Users } from 'lucide-react'
+import { Pill, LayoutDashboard, History, Settings, FileText, Users, Loader2 } from 'lucide-react'
 import { LogoutButton } from '@/components/LogoutButton'
+import { useEffect, useState } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
+import { api } from '@/lib/api'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const [isAuthOk, setIsAuthOk] = useState(false)
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      // Demo bypass
+      console.log('[AUTH LAYOUT] Bypassing authentication check for demo purposes.');
+      setIsAuthOk(true);
+    }
+    checkAuth()
+  }, [pathname, router])
+
+  if (!isAuthOk) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
       <aside className="w-full md:w-64 border-r bg-sidebar md:min-h-screen flex flex-col shrink-0">

@@ -8,8 +8,10 @@ import { CheckCircle2, AlertCircle, Clock, Search, ShieldCheck, Loader2 } from '
 import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { api } from '@/lib/api'
+import { useRouter } from 'next/navigation'
 
 export default function CaregiverDashboardPage() {
+  const router = useRouter()
   const [patients, setPatients] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [inviteCode, setInviteCode] = useState('')
@@ -23,8 +25,12 @@ export default function CaregiverDashboardPage() {
     try {
       const res = await api.caregiver.getPatients()
       setPatients(res.patients || [])
-    } catch (err) {
-      console.error('Failed to fetch patients:', err)
+    } catch (err: any) {
+      if (err.message.includes('token') || err.message.includes('401')) {
+        router.push('/login')
+      } else {
+        console.error('Failed to fetch patients:', err)
+      }
     } finally {
       setLoading(false)
     }
